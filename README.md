@@ -7,3 +7,7 @@ A collection of demos to showcase different aspects of of OpenShift and Red Hat 
 * Elasticity
 * Deployment
 * Operations
+
+## Setup
+
+Follow the [setup instructions](setup/REAMD.md) to install Advanced Cluster Management for Kubernetes and all resources required to run these demos.
