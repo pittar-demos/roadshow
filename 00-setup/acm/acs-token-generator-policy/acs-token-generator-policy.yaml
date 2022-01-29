@@ -88,28 +88,20 @@ spec:
                       name: create-api-token-and-secret
                       resources: {}
                       script: >
-
                         # If secret already exists, don't regenerate.
 
                         if [[ -n `oc get secret roxsecrets -n $(params.NAMESPACE) 2>/dev/null` ]] ;
                         then
-                            
-                            echo "Stackrox token secret already exists in $(params.NAMESPACE)."
-                            
+                            echo "Stackrox token secret already exists in $(params.NAMESPACE)."                            
                             exit 0
-                            
                         fi
 
                         # Wait for central to be ready
-
                         attempt_counter=0
-
                         max_attempts=20
-
                         echo "Waiting for central to be available..." 
 
-                        until $(curl -k --output /dev/null --silent --head --fail
-                        https://central); do
+                        until $(curl -k --output /dev/null --silent --head --fail https://central); do
                             
                             if [ ${attempt_counter} -eq ${max_attempts} ];then
                               echo "Max attempts reached"
@@ -122,8 +114,7 @@ spec:
                             sleep 10
                         done
 
-                        CENTRAL_URL="`oc -n stackrox get route central -o
-                        go-template='{{.spec.host}}'`"
+                        CENTRAL_URL="`oc -n stackrox get route central -o go-template='{{.spec.host}}'`"
 
 
                         API_ENDPOINT="/v1/apitokens/generate"
@@ -132,8 +123,7 @@ spec:
 
                         echo "$CENTRAL_URL_API"
 
-                        PAYLOAD="{\"name\": \"$(params.NAMESPACE)\", \"role\": \"Continuous
-                        Integration\"}" 
+                        PAYLOAD="{\"name\": \"$(params.NAMESPACE)\", \"role\": \"Continuous Integration\"}" 
 
                         echo "$PAYLOAD"
 
