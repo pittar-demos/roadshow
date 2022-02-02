@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/description: Policy OpenShift Serverless
+    openshift.io/display-name: Policy OpenShift Serverless
+  name: policy-openshift-serverless
