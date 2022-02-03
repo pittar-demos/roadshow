@@ -76,12 +76,12 @@ spec:
                 apiVersion: rbac.authorization.k8s.io/v1
                 kind: ClusterRoleBinding
                 metadata:
-                  name: cluster-monitoring-view-developer-monitoring
+                  name: cluster-monitoring-view-developer-monitoring-monitor
                   namespace: developer-monitoring
                 roleRef:
                   apiGroup: rbac.authorization.k8s.io
                   kind: ClusterRole
-                  name: cluster-monitoring-view-
+                  name: cluster-monitoring-view
                 subjects:
                   - kind: ServiceAccount
                     name: grafana-serviceaccount
@@ -273,7 +273,7 @@ spec:
                         - '-openshift-ca=/etc/pki/tls/cert.pem'
                         - '-openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
                         - '-skip-auth-regex=^/metrics'
-                      image: 'registry.redhat.io/openshift4/ose-oauth-proxy:v4.6'
+                      image: 'registry.redhat.io/openshift4/ose-oauth-proxy:v4.9'
                       imagePullPolicy: Always
                       name: grafana-proxy
                       ports:
