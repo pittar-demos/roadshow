@@ -1,8 +1,0 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-namespace: acs-token-generator-policy
-
-resources:
-  - namespace.yaml
-  - acs-token-generator-policy.yaml

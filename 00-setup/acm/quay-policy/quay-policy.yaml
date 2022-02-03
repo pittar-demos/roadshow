@@ -2,7 +2,6 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
   name: policy-quay
-  namespace: policy-quay
   annotations:
     policy.open-cluster-management.io/standards: DevOps
     policy.open-cluster-management.io/categories: Image Registry
@@ -87,7 +86,6 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
 metadata:
   name: binding-policy-quay
-  namespace: policy-quay
 placementRef:
   name: placement-policy-quay
   kind: PlacementRule
@@ -101,11 +99,16 @@ apiVersion: apps.open-cluster-management.io/v1
 kind: PlacementRule
 metadata:
   name: placement-policy-quay
-  namespace: policy-quay
 spec:
   clusterConditions:
   - status: "True"
     type: ManagedClusterConditionAvailable
   clusterSelector:
     matchExpressions:
-      - {key: local-cluster, operator: In, values: ["true"]}
+      - key: demo
+        operator: Exists
+        values:
+          - "quay"
+          - "security"
+          - "devops"
+          - "all"

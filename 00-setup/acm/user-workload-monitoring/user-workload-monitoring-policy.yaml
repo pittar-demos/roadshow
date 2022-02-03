@@ -1,11 +1,11 @@
 apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
-  name: policy-pipelines-operator
+  name: policy-user-workload-monitoring
   annotations:
-    policy.open-cluster-management.io/standards: DevOps
-    policy.open-cluster-management.io/categories: CI/CD Tools
-    policy.open-cluster-management.io/controls: OpenShift Pipelines
+    policy.open-cluster-management.io/standards: Monitoring
+    policy.open-cluster-management.io/categories: Metrics
+    policy.open-cluster-management.io/controls: Prometheus
 spec:
   remediationAction: enforce
   disabled: false
@@ -14,42 +14,39 @@ spec:
         apiVersion: policy.open-cluster-management.io/v1
         kind: ConfigurationPolicy
         metadata:
-          name: policy-pipelines-operator
+          name: policy-user-workload-monitoring
         spec:
           remediationAction: inform
           severity: high
           object-templates:   
             - complianceType: musthave
               objectDefinition:
-                apiVersion: operators.coreos.com/v1alpha1
-                kind: Subscription
+                apiVersion: v1
+                kind: ConfigMap
                 metadata:
-                  name: openshift-pipelines-operator
-                  namespace: openshift-operators
-                spec:
-                  channel: stable
-                  installPlanApproval: Automatic
-                  name: openshift-pipelines-operator-rh
-                  source: redhat-operators
-                  sourceNamespace: openshift-marketplace
+                  name: cluster-monitoring-config
+                  namespace: openshift-monitoring
+                data:
+                  config.yaml: |
+                    enableUserWorkload: true
 ---
 apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
 metadata:
-  name: binding-policy-pipelines-operator
+  name: binding-policy-user-workload-monitoring
 placementRef:
-  name: placement-policy-pipelines-operator
+  name: placement-policy-user-workload-monitoring
   kind: PlacementRule
   apiGroup: apps.open-cluster-management.io
 subjects:
-  - name: policy-pipelines-operator
+  - name: policy-user-workload-monitoring
     kind: Policy
     apiGroup: policy.open-cluster-management.io
 ---
 apiVersion: apps.open-cluster-management.io/v1
 kind: PlacementRule
 metadata:
-  name: placement-policy-pipelines-operator
+  name: placement-policy-user-workload-monitoring
 spec:
   clusterConditions:
     - status: 'True'
@@ -59,6 +56,6 @@ spec:
       - key: demo
         operator: Exists
         values:
-          - "security"
+          - "monitoring"
           - "devops"
           - "all"

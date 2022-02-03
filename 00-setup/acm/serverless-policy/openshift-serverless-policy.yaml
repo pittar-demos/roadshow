@@ -2,7 +2,6 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
   name: policy-openshift-serverless
-  namespace: policy-openshift-serverless
   annotations:
     policy.open-cluster-management.io/standards: Platform
     policy.open-cluster-management.io/categories: Serverless
@@ -97,7 +96,6 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
 metadata:
   name: binding-policy-openshift-serverless
-  namespace: policy-openshift-serverless
 placementRef:
   name: placement-policy-openshift-serverless
   kind: PlacementRule
@@ -111,14 +109,16 @@ apiVersion: apps.open-cluster-management.io/v1
 kind: PlacementRule
 metadata:
   name: placement-policy-openshift-serverless
-  namespace: policy-openshift-serverless
 spec:
   clusterConditions:
     - status: 'True'
       type: ManagedClusterConditionAvailable
   clusterSelector:
     matchExpressions:
-      - key: cluster-services
-        operator: In
+      - key: demo
+        operator: Exists
         values:
-          - "serverless"
+          - "quay"
+          - "security"
+          - "devops"
+          - "all"
