@@ -5,7 +5,7 @@ kind: Kustomization
 namespace: petclinic-dev
 
 bases:
-  - ../base
+  - ../../base
 
 resources:
   - namespace.yaml
