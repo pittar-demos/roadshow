@@ -1,0 +1,340 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: developer-grafana
+  annotations:
+    policy.open-cluster-management.io/standards: Monitoring
+    policy.open-cluster-management.io/categories: Metrics
+    policy.open-cluster-management.io/controls: Grafana
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: developer-grafana-ns
+        spec:
+          remediationAction: inform
+          severity: high
+          object-templates:   
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  annotations:
+                    openshift.io/description: Developer Dashboards
+                    openshift.io/display-name: Developer Dashboards
+                  name: developer-monitoring
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: developer-grafana-operator
+        spec:
+          remediationAction: inform
+          severity: high
+          object-templates:   
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: operators.coreos.com/v1alpha1
+                kind: Subscription
+                metadata:
+                  name: grafana
+                  namespace: developer-monitoring
+                spec:
+                  channel: v4
+                  installPlanApproval: Automatic
+                  name: grafana-operator
+                  source: community-operators
+                  sourceNamespace: openshift-marketplace
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: operators.coreos.com/v1
+                kind: OperatorGroup
+                metadata:
+                  name: grafana-operator
+                  namespace: developer-monitoring
+                spec:
+                  targetNamespaces:
+                    - developer-monitoring
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: developer-grafana-rbac
+        spec:
+          remediationAction: inform
+          severity: high
+          object-templates:   
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: ClusterRoleBinding
+                metadata:
+                  name: cluster-monitoring-view-developer-monitoring
+                  namespace: developer-monitoring
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: cluster-monitoring-view-
+                subjects:
+                  - kind: ServiceAccount
+                    name: grafana-serviceaccount
+                    namespace: developer-monitoring
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: ClusterRole
+                metadata:
+                  name: grafana-proxy
+                  namespace: developer-monitoring
+                rules:
+                  - apiGroups:
+                      - authentication.k8s.io
+                    resources:
+                      - tokenreviews
+                    verbs:
+                      - create
+                  - apiGroups:
+                      - authorization.k8s.io
+                    resources:
+                      - subjectaccessreviews
+                    verbs:
+                      - create
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: RoleBinding
+                metadata:
+                  name: grafana-proxy
+                  namespace: developer-monitoring
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: grafana-proxy
+                subjects:
+                  - kind: ServiceAccount
+                    name: grafana-serviceaccount
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: developer-grafana-instance
+        spec:
+          remediationAction: inform
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                data:
+                  session_secret: Y2hhbmdlIG1lCg==
+                kind: Secret
+                metadata:
+                  name: grafana-k8s-proxy
+                  namespace: developer-monitoring
+                type: Opaque
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: integreatly.org/v1alpha1
+                kind: GrafanaDataSource
+                metadata:
+                  name: prometheus
+                  namespace: developer-monitoring
+                spec:
+                  datasources:
+                    - access: proxy
+                      editable: true
+                      isDefault: true
+                      jsonData:
+                        httpHeaderName1: 'Authorization'
+                        timeInterval: 5s
+                        tlsSkipVerify: true
+                      name: Prometheus
+                      secureJsonData: {}
+                      type: prometheus
+                      url: 'https://thanos-querier.openshift-monitoring.svc.cluster.local:9091'
+                  name: prometheus.yaml
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: ServiceAccount
+                metadata:
+                  name: patch-grafana-ds-job
+                  namespace: developer-monitoring
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: Role
+                metadata:
+                  name: patch-grafana-ds
+                  namespace: developer-monitoring
+                rules:
+                  - apiGroups:
+                      - integreatly.org
+                    resources:
+                      - grafanadatasources
+                    verbs:
+                      - get
+                      - list
+                      - patch
+                  - apiGroups:
+                      - ""
+                    resources:
+                      - serviceaccounts
+                      - secrets
+                    verbs:
+                      - get
+                      - list
+                      - patch
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: RoleBinding
+                metadata:
+                  name: patch-grafana-ds
+                  namespace: developer-monitoring
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: Role
+                  name: patch-grafana-ds
+                subjects:
+                  - kind: ServiceAccount
+                    name: patch-grafana-ds-job
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: batch/v1
+                kind: Job
+                metadata:
+                  name: patch-grafana-ds
+                  namespace: developer-monitoring
+                spec:
+                  template:
+                    spec:
+                      containers:
+                        - image: registry.redhat.io/openshift4/ose-cli:v4.9
+                          command:
+                            - /bin/bash
+                            - -c
+                            - |
+                              set -e
+                              echo "Patching grafana datasource with token for authentication to prometheus"
+                              TOKEN=`oc serviceaccounts get-token grafana-serviceaccount`
+                              oc patch grafanadatasource prometheus --type='json' -p='[{"op":"add","path":"/spec/datasources/0/secureJsonData/httpHeaderValue1","value":"Bearer '${TOKEN}'"}]'
+                          imagePullPolicy: Always
+                          name: patch-grafana-ds
+                      dnsPolicy: ClusterFirst
+                      restartPolicy: OnFailure
+                      serviceAccount: patch-grafana-ds-job
+                      serviceAccountName: patch-grafana-ds-job
+                      terminationGracePeriodSeconds: 30
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: integreatly.org/v1alpha1
+                kind: Grafana
+                metadata:
+                  name: grafana
+                  namespace: developer-monitoring
+                spec:
+                  config:
+                    log:
+                      mode: "console"
+                      level: "warn"
+                    auth:
+                      disable_login_form: false
+                      disable_signout_menu: true
+                    auth.basic:
+                      enabled: true
+                    auth.anonymous:
+                      enabled: true
+                  containers:
+                    - env:
+                        - name: SAR
+                          value: '-openshift-sar={"namespace":"developer-monitoring","resource":"routes","name":"grafana-route","verb":"get"}'
+                      args:
+                        - '-provider=openshift'
+                        - '-pass-basic-auth=false'
+                        - '-https-address=:9091'
+                        - '-http-address='
+                        - '-email-domain=*'
+                        - '-upstream=http://localhost:3000'
+                        - "$(SAR)"
+                        - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get"}}'
+                        - '-tls-cert=/etc/tls/private/tls.crt'
+                        - '-tls-key=/etc/tls/private/tls.key'
+                        - '-client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token'
+                        - '-cookie-secret-file=/etc/proxy/secrets/session_secret'
+                        - '-openshift-service-account=grafana-serviceaccount'
+                        - '-openshift-ca=/etc/pki/tls/cert.pem'
+                        - '-openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
+                        - '-skip-auth-regex=^/metrics'
+                      image: 'registry.redhat.io/openshift4/ose-oauth-proxy:v4.6'
+                      imagePullPolicy: Always
+                      name: grafana-proxy
+                      ports:
+                        - containerPort: 9091
+                          name: grafana-proxy
+                      resources: {}
+                      volumeMounts:
+                        - mountPath: /etc/tls/private
+                          name: secret-grafana-k8s-tls
+                          readOnly: false
+                        - mountPath: /etc/proxy/secrets
+                          name: secret-grafana-k8s-proxy
+                          readOnly: false
+                  secrets:
+                    - grafana-k8s-tls
+                    - grafana-k8s-proxy
+                  service:
+                    ports:
+                      - name: grafana-proxy
+                        port: 9091
+                        protocol: TCP
+                        targetPort: grafana-proxy
+                    annotations:
+                      service.alpha.openshift.io/serving-cert-secret-name: grafana-k8s-tls
+                  ingress:
+                    enabled: true
+                    targetPort: grafana-proxy
+                    termination: reencrypt
+                  client:
+                    preferService: true
+                  serviceAccount:
+                    annotations:
+                      serviceaccounts.openshift.io/oauth-redirectreference.primary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"grafana-route"}}'
+                  dashboardLabelSelector:
+                    - matchExpressions:
+                        - { key: "app", operator: In, values: ['grafana'] }
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-developer-grafana
+placementRef:
+  name: placement-developer-grafana
+  kind: PlacementRule
+  apiGroup: apps.open-cluster-management.io
+subjects:
+  - name: developer-grafana
+    kind: Policy
+    apiGroup: policy.open-cluster-management.io
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: placement-developer-grafana
+spec:
+  clusterConditions:
+    - status: 'True'
+      type: ManagedClusterConditionAvailable
+  clusterSelector:
+    matchExpressions:
+      - key: demo
+        operator: In
+        values:
+          - "monitoring"
+          - "devops"
+          - "all"

@@ -11,6 +11,7 @@ bases:
   - quay-policy
   - serverless-policy
   - user-workload-monitoring-policy
+  - developer-grafana-policy
 
 resources:
   - namespace.yaml
