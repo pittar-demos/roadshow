@@ -6,10 +6,10 @@ metadata:
   labels:
     tenant: grafana
     namespace.env: dev
-  name: developer-dashboards
+  name: developer-monitoring
 spec:
   destination:
-    namespace: developer-dashboards
+    namespace: developer-monitoring
     server: https://kubernetes.default.svc
   project: default
   source:

@@ -13,4 +13,4 @@ resources:
 images:
   - name: petclinic
     newName: quay.io/pittar/petclinic
-    newTag: log4j
+    newTag: metrics
