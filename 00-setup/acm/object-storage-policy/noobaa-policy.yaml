@@ -2,7 +2,6 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
   name: policy-object-storage
-  namespace: policy-noobaa-s3
   annotations:
     policy.open-cluster-management.io/standards: Storage
     policy.open-cluster-management.io/categories: Object
@@ -143,7 +142,6 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
 metadata:
   name: binding-policy-object-storage
-  namespace: policy-noobaa-s3
 placementRef:
   name: placement-policy-object-storage
   kind: PlacementRule
@@ -157,7 +155,6 @@ apiVersion: apps.open-cluster-management.io/v1
 kind: PlacementRule
 metadata:
   name: placement-policy-object-storage
-  namespace: policy-object-storage
 spec:
   clusterConditions:
   - status: "True"

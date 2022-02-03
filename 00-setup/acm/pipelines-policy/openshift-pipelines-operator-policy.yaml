@@ -2,7 +2,6 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
   name: policy-pipelines-operator
-  namespace: policy-pipelines-operator
   annotations:
     policy.open-cluster-management.io/standards: DevOps
     policy.open-cluster-management.io/categories: CI/CD Tools
@@ -38,7 +37,6 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
 metadata:
   name: binding-policy-pipelines-operator
-  namespace: policy-pipelines-operator
 placementRef:
   name: placement-policy-pipelines-operator
   kind: PlacementRule
@@ -52,7 +50,6 @@ apiVersion: apps.open-cluster-management.io/v1
 kind: PlacementRule
 metadata:
   name: placement-policy-pipelines-operator
-  namespace: policy-pipelines-operator
 spec:
   clusterConditions:
     - status: 'True'

@@ -2,7 +2,6 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
   name: policy-acs-token-generator
-  namespace: policy-acs-token-generator
   annotations:
     policy.open-cluster-management.io/standards: DevOps
     policy.open-cluster-management.io/categories: SecOps
@@ -170,7 +169,6 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
 metadata:
   name: binding-policy-acs-token-generator
-  namespace: policy-acs-token-generator
 placementRef:
   name: placement-policy-acs-token-generator
   kind: PlacementRule
@@ -184,7 +182,6 @@ apiVersion: apps.open-cluster-management.io/v1
 kind: PlacementRule
 metadata:
   name: placement-policy-acs-token-generator
-  namespace: policy-acs-token-generator
 spec:
   clusterConditions:
     - status: 'True'
