@@ -41,6 +41,12 @@ spec:
                       - servicemonitors
                     verbs:
                       - '*'
+                  - apiGroups:
+                    - integreatly.org
+                    resources:
+                      - grafanadashboards
+                    verbs:
+                      - '*'
             - complianceType: musthave
               objectDefinition:
                 kind: ClusterRoleBinding
