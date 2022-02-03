@@ -198,9 +198,10 @@ spec:
   clusterSelector:
     matchExpressions:
       - key: demo
-        operator: Exists
+        operator: In
         values:
           - "security"
+          - "monitoring"
           - "devops"
           - "gitops"
           - "all"

@@ -162,7 +162,7 @@ spec:
   clusterSelector:
     matchExpressions:
       - key: demo
-        operator: Exists
+        operator: In
         values:
           - "quay"
           - "acm"

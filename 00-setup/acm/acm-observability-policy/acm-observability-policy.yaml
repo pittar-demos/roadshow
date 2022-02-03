@@ -142,7 +142,7 @@ spec:
   clusterSelector:
     matchExpressions:
       - key: demo
-        operator: Exists
+        operator: In
         values:
           - "acm"
           - "all"

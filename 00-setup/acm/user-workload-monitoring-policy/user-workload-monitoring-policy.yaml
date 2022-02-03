@@ -54,7 +54,7 @@ spec:
   clusterSelector:
     matchExpressions:
       - key: demo
-        operator: Exists
+        operator: In
         values:
           - "monitoring"
           - "devops"
