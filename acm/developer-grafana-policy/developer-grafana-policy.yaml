@@ -27,6 +27,8 @@ spec:
                   annotations:
                     openshift.io/description: Developer Dashboards
                     openshift.io/display-name: Developer Dashboards
+                  labels:
+                    argocd.argoproj.io/managed-by: openshift-gitops
                   name: developer-monitoring
     - objectDefinition:
         apiVersion: policy.open-cluster-management.io/v1
