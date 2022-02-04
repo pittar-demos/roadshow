@@ -1,0 +1,12 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: petclinic-error-alert
+  labels:
+    openshift.io/prometheus-rule-evaluation-scope: leaf-prometheus
+spec:
+  groups:
+  - name: petclinic
+    rules:
+    - alert: ErrorAlert
+      expr: increase(logback_events_total{app="petclinic",level="error",runtime="springboot",}[2m]) > 5
