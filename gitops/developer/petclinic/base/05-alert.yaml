@@ -8,5 +8,10 @@ spec:
   groups:
   - name: petclinic
     rules:
-    - alert: ErrorAlert
-      expr: increase(logback_events_total{app="petclinic",level="error",runtime="springboot",}[2m]) > 5
+    - alert: HighErrorAlert
+      expr: increase(logback_events_total{app="petclinic",level="error",runtime="springboot",}[1m]) > 4
+      for: 3m
+      labels:
+        severity: Critical
+      annotations:
+        summary: High error rate.
