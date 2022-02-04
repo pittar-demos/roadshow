@@ -38,13 +38,13 @@ spec:
                   - apiGroups:
                     - monitoring.coreos.com
                     resources:
-                      - servicemonitors
+                      - '*'
                     verbs:
                       - '*'
                   - apiGroups:
                     - integreatly.org
                     resources:
-                      - grafanadashboards
+                      - '*'
                     verbs:
                       - '*'
             - complianceType: musthave
