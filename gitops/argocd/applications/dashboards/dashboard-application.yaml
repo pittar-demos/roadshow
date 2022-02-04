@@ -13,7 +13,7 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: gitops/admins/user-workload-monitoring/dashboards
+    path: gitops/admins/developer-dashboards
     repoURL: https://github.com/pittar-demos/roadshow.git
     targetRevision: main
   syncPolicy:
