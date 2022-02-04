@@ -10,7 +10,7 @@ spec:
     rules:
     - alert: HighErrorAlert
       expr: increase(logback_events_total{app="petclinic",level="error",runtime="springboot",}[1m]) > 4
-      for: 3m
+      for: 1m
       labels:
         severity: Critical
       annotations:
